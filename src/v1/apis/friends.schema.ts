@@ -4,6 +4,10 @@ import { createResponseSchema } from '../common/schema/core.schema.js';
 import { Status } from '@prisma/client';
 
 export const friendRequestSchema = z.object({
+  friend_id: z.number().int(),
+});
+
+export const friendCreateSchema = z.object({
   user_id: z.number().int(),
   friend_id: z.number().int(),
   status: z.nativeEnum(Status).default(Status.PENDING),

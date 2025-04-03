@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { STATUS } from '../common/constants/status.js';
 import { NotFoundException } from '../common/exceptions/core.error.js';
 import FriendRepositoryInterface from '../storage/database/interfaces/friend.repository.interface.js';
-import { friendRequestSchema, friendResponseSchema, friendListResponseSchema, } from './friends.schema.js';
+import { friendCreateSchema, friendResponseSchema, friendListResponseSchema, } from './friends.schema.js';
 import { Status } from '@prisma/client';
 
 export default class FriendsService {
@@ -14,8 +14,9 @@ export default class FriendsService {
   ) {}
 
   async request(
-    data: z.infer<typeof friendRequestSchema>,
+    data: z.infer<typeof friendCreateSchema>,
   ): Promise<z.infer<typeof friendResponseSchema>> {
+    console.log("Prisma로 전달될 data:", data);
     const newFriend = await this.friendRepository.create({
     user_id: data.user_id,
     friend_id: data.friend_id,

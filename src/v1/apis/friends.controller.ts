@@ -1,4 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { Status } from '@prisma/client';
 import FriendsService from './friends.service.js';
 import { actionSchema, friendRequestSchema, } from './friends.schema.js'
 
@@ -7,9 +8,15 @@ export default class FriendsController {
 
   request = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
+      const user_id = Number(request.headers['x-user-id']);
       const body = friendRequestSchema.parse(request.body);
+      const data = {
+        user_id: Number(user_id),
+        friend_id: body.friend_id,
+        status: Status.PENDING,
+    };
       request.log.info(body, 'Friend request received');
-      const result = await this.friendsService.request(body);
+      const result = await this.friendsService.request(data);
       reply.status(201).send(result);
     } catch (error) {
       request.log.error(error, 'Error in Friend request');
