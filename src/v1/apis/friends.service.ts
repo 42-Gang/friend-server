@@ -16,7 +16,6 @@ export default class FriendsService {
   async request(
     data: z.infer<typeof friendCreateSchema>,
   ): Promise<z.infer<typeof friendResponseSchema>> {
-    console.log("Prisma로 전달될 data:", data);
     const newFriend = await this.friendRepository.create({
     user_id: data.user_id,
     friend_id: data.friend_id,

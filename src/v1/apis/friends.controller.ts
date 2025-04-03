@@ -8,7 +8,7 @@ export default class FriendsController {
 
   request = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const user_id = Number(request.headers['x-user-id']);
+      const user_id = request.userId;
       const body = friendRequestSchema.parse(request.body);
       const data = {
         user_id: Number(user_id),
