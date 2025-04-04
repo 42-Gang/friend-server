@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-// import { FastifyBaseLogger } from 'fastify';
 import { STATUS } from '../common/constants/status.js';
 import { NotFoundException } from '../common/exceptions/core.error.js';
 import FriendRepositoryInterface from '../storage/database/interfaces/friend.repository.interface.js';
@@ -14,20 +13,16 @@ import { Status } from '@prisma/client';
 export default class FriendsService {
   constructor(
     private readonly friendRepository: FriendRepositoryInterface,
-    // private readonly logger: FastifyBaseLogger,
   ) {}
 
   async request(
     data: z.infer<typeof friendCreateSchema>,
   ): Promise<z.infer<typeof friendResponseSchema>> {
-    const newFriend = await this.friendRepository.create({
+    await this.friendRepository.create({
       user_id: data.user_id,
       friend_id: data.friend_id,
       status: Status.PENDING,
     });
-    if (!newFriend) {
-      throw new NotFoundException('Friend not found');
-    }
 
     return {
       status: STATUS.SUCCESS,
@@ -46,10 +41,8 @@ export default class FriendsService {
     );
 
     if (reverseRequest) {
-      //반대 방향의 친구 요청이 있는지 확인 (user_id와 friend_id를 뒤집어서 검색)
       await this.friendRepository.update(reverseRequest.id, { status: Status.ACCEPTED });
-    } else {
-      //반대 요청이 없다면, 새로 친구 관계를 생성
+    } else if (!reverseRequest) {
       await this.friendRepository.create({
         user_id: updatedFriendRequest.friend_id,
         friend_id: updatedFriendRequest.user_id,
