@@ -11,9 +11,7 @@ import {
 import { Status } from '@prisma/client';
 
 export default class FriendsService {
-  constructor(
-    private readonly friendRepository: FriendRepositoryInterface,
-  ) {}
+  constructor(private readonly friendRepository: FriendRepositoryInterface) {}
 
   async request(
     data: z.infer<typeof friendCreateSchema>,
