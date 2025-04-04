@@ -20,6 +20,7 @@ export default async function friendsRoutes(fastify: FastifyInstance) {
             201: friendResponseSchema,
           },
         },
+        auth: true,
       },
     },
     {
@@ -35,11 +36,9 @@ export default async function friendsRoutes(fastify: FastifyInstance) {
             200: friendResponseSchema,
           },
         },
+        auth: true,
       },
     },
-    // {
-
-    // },
   ];
 
   await addRoutes(fastify, routes);
