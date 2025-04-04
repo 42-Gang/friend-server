@@ -22,8 +22,8 @@ export const friendListResponseSchema = createResponseSchema(
       user_id: z.number().int(),
       friend_id: z.number().int(),
       status: z.nativeEnum(Status),
-    })
-  )
+    }),
+  ),
 );
 
 export const actionSchema = z.object({
