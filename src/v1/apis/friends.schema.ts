@@ -29,3 +29,7 @@ export const friendListResponseSchema = createResponseSchema(
 export const actionSchema = z.object({
   action: z.enum(['reject', 'accept']),
 });
+
+export const updateFriendParamsSchema = z.object({
+  id: z.preprocess((val) => Number(val), z.number()),
+});

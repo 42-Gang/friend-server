@@ -58,7 +58,7 @@ export default class FriendsService {
     });
   
     if (!updatedFriend) {
-      throw new NotFoundException('Friend not found');
+      throw new NotFoundException('Friend request not found');
     }
   
     return {
