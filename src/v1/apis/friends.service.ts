@@ -1,24 +1,34 @@
 import { z } from 'zod';
 
 import { STATUS } from '../common/constants/status.js';
-import { NotFoundException } from '../common/exceptions/core.error.js';
-import FriendRepositoryInterface from '../storage/database/interfaces/friend.repository.interface.js';
 import {
-  friendCreateSchema,
-  friendResponseSchema,
-  friendListResponseSchema,
-} from './friends.schema.js';
+  NotFoundException,
+  UnAuthorizedException,
+  ConflictException,
+} from '../common/exceptions/core.error.js';
+import FriendRepositoryInterface from '../storage/database/interfaces/friend.repository.interface.js';
+import { friendResponseSchema, friendListResponseSchema } from './friends.schema.js';
 import { Status } from '@prisma/client';
 
 export default class FriendsService {
   constructor(private readonly friendRepository: FriendRepositoryInterface) {}
 
   async request(
-    data: z.infer<typeof friendCreateSchema>,
+    user_id: number | undefined,
+    friend_id: number,
   ): Promise<z.infer<typeof friendResponseSchema>> {
+    if (!user_id) {
+      throw new NotFoundException('User not found');
+    }
+    const Request = await this.friendRepository.findByUserIdAndFriendId(user_id, friend_id);
+    console.log('🔹 Request Id:', Request?.id);
+    if (Request) {
+      throw new ConflictException('Friend Request already exists');
+    }
+
     await this.friendRepository.create({
-      user_id: data.user_id,
-      friend_id: data.friend_id,
+      user_id,
+      friend_id,
       status: Status.PENDING,
     });
 
@@ -28,7 +38,21 @@ export default class FriendsService {
     };
   }
 
-  async accept(id: number): Promise<z.infer<typeof friendResponseSchema>> {
+  async accept(
+    user_id: number | undefined,
+    id: number,
+  ): Promise<z.infer<typeof friendResponseSchema>> {
+    if (!user_id) {
+      throw new NotFoundException('User not found');
+    }
+    const friendRequest = await this.friendRepository.findById(id);
+    if (!friendRequest) {
+      throw new NotFoundException('Friend request not found');
+    }
+    if (friendRequest.friend_id !== user_id) {
+      throw new UnAuthorizedException('You are not authorized to perform this action');
+    }
+
     const updatedFriendRequest = await this.friendRepository.update(id, {
       status: Status.ACCEPTED,
     });
@@ -54,14 +78,24 @@ export default class FriendsService {
     };
   }
 
-  async reject(id: number): Promise<z.infer<typeof friendResponseSchema>> {
-    const updatedFriend = await this.friendRepository.update(id, {
-      status: Status.REJECTED,
-    });
-
-    if (!updatedFriend) {
+  async reject(
+    user_id: number | undefined,
+    id: number,
+  ): Promise<z.infer<typeof friendResponseSchema>> {
+    if (!user_id) {
+      throw new NotFoundException('User not found');
+    }
+    const friendRequest = await this.friendRepository.findById(id);
+    if (!friendRequest) {
       throw new NotFoundException('Friend request not found');
     }
+    if (friendRequest.friend_id !== user_id) {
+      throw new UnAuthorizedException('You are not authorized to perform this action');
+    }
+
+    await this.friendRepository.update(id, {
+      status: Status.REJECTED,
+    });
 
     return {
       status: STATUS.SUCCESS,

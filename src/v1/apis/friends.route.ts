@@ -1,10 +1,9 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { FastifyInstance } from 'fastify';
 import { addRoutes, Route } from '../../plugins/router.js';
 import FriendsController from './friends.controller.js';
 import {
   friendRequestSchema,
   friendResponseSchema,
-  actionSchema,
   updateFriendParamsSchema,
 } from './friends.schema.js';
 
@@ -19,6 +18,7 @@ export default async function friendsRoutes(fastify: FastifyInstance) {
       options: {
         schema: {
           tags: ['friends'],
+          description: '친구 요청',
           body: friendRequestSchema,
           response: {
             201: friendResponseSchema,
@@ -29,16 +29,28 @@ export default async function friendsRoutes(fastify: FastifyInstance) {
     },
     {
       method: 'PATCH',
-      url: '/requests/:id',
-      handler: async (request: FastifyRequest, reply: FastifyReply) => {
-        const { action } = actionSchema.parse(request.body);
-        if (action === 'accept') return friendsController.acceptRequest(request, reply);
-        else if (action === 'reject') return friendsController.rejectRequest(request, reply);
-      },
+      url: '/requests/:id/accept',
+      handler: friendsController.acceptRequest,
       options: {
         schema: {
           tags: ['friends'],
-          body: actionSchema,
+          description: '친구요청 수락',
+          params: updateFriendParamsSchema,
+          response: {
+            200: friendResponseSchema,
+          },
+        },
+        auth: true,
+      },
+    },
+    {
+      method: 'PATCH',
+      url: '/requests/:id/reject',
+      handler: friendsController.rejectRequest,
+      options: {
+        schema: {
+          tags: ['friends'],
+          description: '친구요청 거절',
           params: updateFriendParamsSchema,
           response: {
             200: friendResponseSchema,

@@ -7,12 +7,6 @@ export const friendRequestSchema = z.object({
   friend_id: z.number().int(),
 });
 
-export const friendCreateSchema = z.object({
-  user_id: z.number().int(),
-  friend_id: z.number().int(),
-  status: z.nativeEnum(Status).default(Status.PENDING),
-});
-
 export const friendResponseSchema = createResponseSchema(z.any());
 
 export const friendListResponseSchema = createResponseSchema(
@@ -25,10 +19,6 @@ export const friendListResponseSchema = createResponseSchema(
     }),
   ),
 );
-
-export const actionSchema = z.object({
-  action: z.enum(['reject', 'accept']),
-});
 
 export const updateFriendParamsSchema = z.object({
   id: z.preprocess((val) => Number(val), z.number()),
