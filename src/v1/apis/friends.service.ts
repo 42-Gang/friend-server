@@ -103,12 +103,22 @@ export default class FriendsService {
     };
   }
 
-  async block(id: number): Promise<z.infer<typeof friendResponseSchema>> {
-    const updatedFriend = await this.friendRepository.update(id, { status: Status.BLOCKED });
-
-    if (!updatedFriend) {
-      throw new NotFoundException('Friend not found');
+  async block(
+    user_id: number | undefined,
+    id: number,
+  ): Promise<z.infer<typeof friendResponseSchema>> {
+    if (!user_id) {
+      throw new NotFoundException('User not found');
     }
+    const friendRequest = await this.friendRepository.findById(id);
+    if (!friendRequest) {
+      throw new NotFoundException('Friend request not found');
+    }
+    if (friendRequest.user_id !== user_id) {
+      throw new UnAuthorizedException('You are not authorized to perform this action');
+    }
+
+    await this.friendRepository.update(id, { status: Status.BLOCKED });
 
     return {
       status: STATUS.SUCCESS,
@@ -116,12 +126,22 @@ export default class FriendsService {
     };
   }
 
-  async unblock(id: number): Promise<z.infer<typeof friendResponseSchema>> {
-    const updatedFriend = await this.friendRepository.update(id, { status: Status.ACCEPTED });
-
-    if (!updatedFriend) {
-      throw new NotFoundException('Friend not found');
+  async unblock(
+    user_id: number | undefined,
+    id: number,
+  ): Promise<z.infer<typeof friendResponseSchema>> {
+    if (!user_id) {
+      throw new NotFoundException('User not found');
     }
+    const friendRequest = await this.friendRepository.findById(id);
+    if (!friendRequest) {
+      throw new NotFoundException('Friend request not found');
+    }
+    if (friendRequest.user_id !== user_id) {
+      throw new UnAuthorizedException('You are not authorized to perform this action');
+    }
+
+    await this.friendRepository.update(id, { status: Status.ACCEPTED });
 
     return {
       status: STATUS.SUCCESS,

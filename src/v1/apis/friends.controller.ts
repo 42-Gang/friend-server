@@ -7,22 +7,31 @@ export default class FriendsController {
 
   request = async (request: FastifyRequest, reply: FastifyReply) => {
     const body = friendRequestSchema.parse(request.body);
-    request.log.info(body, 'Friend request received');
     const result = await this.friendsService.request(request.userId, body.friend_id);
     reply.status(201).send(result);
   };
 
   acceptRequest = async (request: FastifyRequest, reply: FastifyReply) => {
     const params = updateFriendParamsSchema.parse(request.params);
-    request.log.info('Friend request has been accepted');
     const result = await this.friendsService.accept(request.userId, params.id);
     reply.status(200).send(result);
   };
 
   rejectRequest = async (request: FastifyRequest, reply: FastifyReply) => {
     const params = updateFriendParamsSchema.parse(request.params);
-    request.log.info('Friend request has been rejected');
     const result = await this.friendsService.reject(request.userId, params.id);
+    reply.status(200).send(result);
+  };
+
+  blockUser = async (request: FastifyRequest, reply: FastifyReply) => {
+    const params = updateFriendParamsSchema.parse(request.params);
+    const result = await this.friendsService.block(request.userId, params.id);
+    reply.status(200).send(result);
+  };
+
+  unblockUser = async (request: FastifyRequest, reply: FastifyReply) => {
+    const params = updateFriendParamsSchema.parse(request.params);
+    const result = await this.friendsService.unblock(request.userId, params.id);
     reply.status(200).send(result);
   };
 }

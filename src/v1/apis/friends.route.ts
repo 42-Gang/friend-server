@@ -59,6 +59,38 @@ export default async function friendsRoutes(fastify: FastifyInstance) {
         auth: true,
       },
     },
+    {
+      method: 'PATCH',
+      url: '/:id/block',
+      handler: friendsController.blockUser,
+      options: {
+        schema: {
+          tags: ['friends'],
+          description: '친구 차단',
+          params: updateFriendParamsSchema,
+          response: {
+            200: friendResponseSchema,
+          },
+        },
+        auth: true,
+      },
+    },
+    {
+      method: 'PATCH',
+      url: '/:id/unblock',
+      handler: friendsController.unblockUser,
+      options: {
+        schema: {
+          tags: ['friends'],
+          description: '친구 차단해제',
+          params: updateFriendParamsSchema,
+          response: {
+            200: friendResponseSchema,
+          },
+        },
+        auth: true,
+      },
+    },
   ];
 
   await addRoutes(fastify, routes);
