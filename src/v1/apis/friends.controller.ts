@@ -34,4 +34,9 @@ export default class FriendsController {
     const result = await this.friendsService.unblock(request.userId, params.id);
     reply.status(200).send(result);
   };
+
+  // getFriends = async (request: FastifyRequest, reply: FastifyReply) => {
+  //   const result = await this.friendsService.getFriends(request.userId);
+  //   reply.status(200).send(result);
+  // };
 }

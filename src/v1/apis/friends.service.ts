@@ -7,7 +7,7 @@ import {
   ConflictException,
 } from '../common/exceptions/core.error.js';
 import FriendRepositoryInterface from '../storage/database/interfaces/friend.repository.interface.js';
-import { friendResponseSchema, friendListResponseSchema } from './friends.schema.js';
+import { friendResponseSchema } from './friends.schema.js';
 import { Status } from '@prisma/client';
 
 export default class FriendsService {
@@ -52,6 +52,9 @@ export default class FriendsService {
     if (friendRequest.friend_id !== user_id) {
       throw new UnAuthorizedException('You are not authorized to perform this action');
     }
+    if (friendRequest.status !== Status.PENDING) {
+      throw new ConflictException('Only pending requests can be accepted');
+    }
 
     const updatedFriendRequest = await this.friendRepository.update(id, {
       status: Status.ACCEPTED,
@@ -63,6 +66,9 @@ export default class FriendsService {
     );
 
     if (reverseRequest) {
+      if (reverseRequest.status !== Status.PENDING) {
+        throw new ConflictException('Only pending requests can be accepted');
+      }
       await this.friendRepository.update(reverseRequest.id, { status: Status.ACCEPTED });
     } else if (!reverseRequest) {
       await this.friendRepository.create({
@@ -92,6 +98,9 @@ export default class FriendsService {
     if (friendRequest.friend_id !== user_id) {
       throw new UnAuthorizedException('You are not authorized to perform this action');
     }
+    if (friendRequest.status !== Status.PENDING) {
+      throw new ConflictException('Only pending requests can be rejected');
+    }
 
     await this.friendRepository.update(id, {
       status: Status.REJECTED,
@@ -117,6 +126,9 @@ export default class FriendsService {
     if (friendRequest.user_id !== user_id) {
       throw new UnAuthorizedException('You are not authorized to perform this action');
     }
+    if (friendRequest.status !== Status.ACCEPTED) {
+      throw new ConflictException('Only accepted friends can be blocked');
+    }
 
     await this.friendRepository.update(id, { status: Status.BLOCKED });
 
@@ -140,6 +152,9 @@ export default class FriendsService {
     if (friendRequest.user_id !== user_id) {
       throw new UnAuthorizedException('You are not authorized to perform this action');
     }
+    if (friendRequest.status !== Status.BLOCKED) {
+      throw new ConflictException('Only blocked friends can be unblocked');
+    }
 
     await this.friendRepository.update(id, { status: Status.ACCEPTED });
 
@@ -149,15 +164,20 @@ export default class FriendsService {
     };
   }
 
-  async listFriends(user_id: number): Promise<z.infer<typeof friendListResponseSchema>> {
-    const friends = await this.friendRepository.findByUserIdAndStatus(user_id, Status.ACCEPTED);
+  // async getFriends(user_id: number | undefined): Promise<z.infer<typeof friendListResponseSchema>> {
+  //   if (!user_id) {
+  //     throw new NotFoundException('User not found');
+  //   }
+  // const friends = await this.friendRepository.findByUserIdAndStatus(user_id, Status.ACCEPTED);
+  // const friendIds = friends.map((f) => f.friend_id);
+  // const friendProfiles = await this.userService.findManyByIds(friendIds);
 
-    return {
-      status: STATUS.SUCCESS,
-      message: 'Friend list retrieved successfully',
-      data: friends,
-    };
-  }
+  // return {
+  //   status: STATUS.SUCCESS,
+  //   message: 'Friend list retrieved successfully',
+  //   data: friendProfiles,
+  // };
+  // }
 
   // async listRequests()
 
