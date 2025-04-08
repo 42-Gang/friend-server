@@ -18,7 +18,7 @@ export async function socketMiddleware(socket: Socket, next: NextFunction) {
       throw new UnAuthorizedException('인증되지 않은 사용자입니다.');
     }
 
-    const response = await gotClient.request<{ user_id: number }>({
+    const response = await gotClient.request<{ userId: number }>({
       method: 'POST',
       url: 'http://auth-server',
       body: {
@@ -26,7 +26,7 @@ export async function socketMiddleware(socket: Socket, next: NextFunction) {
       },
     });
 
-    socket.data.userId = response.body.user_id;
+    socket.data.userId = response.body.userId;
     next();
   } catch (e) {
     next(new UnAuthorizedException('인증되지 않은 사용자입니다.'));

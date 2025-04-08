@@ -14,21 +14,21 @@ export default class FriendsService {
   constructor(private readonly friendRepository: FriendRepositoryInterface) {}
 
   async request(
-    user_id: number | undefined,
-    friend_id: number,
+    userId: number | undefined,
+    friendId: number,
   ): Promise<z.infer<typeof friendResponseSchema>> {
-    if (!user_id) {
+    if (!userId) {
       throw new NotFoundException('User not found');
     }
-    const Request = await this.friendRepository.findByUserIdAndFriendId(user_id, friend_id);
+    const Request = await this.friendRepository.findByUserIdAndFriendId(userId, friendId);
     console.log('🔹 Request Id:', Request?.id);
     if (Request) {
       throw new ConflictException('Friend Request already exists');
     }
 
     await this.friendRepository.create({
-      user_id,
-      friend_id,
+      userId,
+      friendId,
       status: Status.PENDING,
     });
 
@@ -39,17 +39,17 @@ export default class FriendsService {
   }
 
   async accept(
-    user_id: number | undefined,
+    userId: number | undefined,
     id: number,
   ): Promise<z.infer<typeof friendResponseSchema>> {
-    if (!user_id) {
+    if (!userId) {
       throw new NotFoundException('User not found');
     }
     const friendRequest = await this.friendRepository.findById(id);
     if (!friendRequest) {
       throw new NotFoundException('Friend request not found');
     }
-    if (friendRequest.friend_id !== user_id) {
+    if (friendRequest.friendId !== userId) {
       throw new UnAuthorizedException('You are not authorized to perform this action');
     }
     if (friendRequest.status !== Status.PENDING) {
@@ -61,8 +61,8 @@ export default class FriendsService {
     });
 
     const reverseRequest = await this.friendRepository.findByUserIdAndFriendId(
-      updatedFriendRequest.friend_id,
-      updatedFriendRequest.user_id,
+      updatedFriendRequest.friendId,
+      updatedFriendRequest.userId,
     );
 
     if (reverseRequest) {
@@ -72,8 +72,8 @@ export default class FriendsService {
       await this.friendRepository.update(reverseRequest.id, { status: Status.ACCEPTED });
     } else if (!reverseRequest) {
       await this.friendRepository.create({
-        user_id: updatedFriendRequest.friend_id,
-        friend_id: updatedFriendRequest.user_id,
+        userId: updatedFriendRequest.friendId,
+        friendId: updatedFriendRequest.userId,
         status: Status.ACCEPTED,
       });
     }
@@ -85,17 +85,17 @@ export default class FriendsService {
   }
 
   async reject(
-    user_id: number | undefined,
+    userId: number | undefined,
     id: number,
   ): Promise<z.infer<typeof friendResponseSchema>> {
-    if (!user_id) {
+    if (!userId) {
       throw new NotFoundException('User not found');
     }
     const friendRequest = await this.friendRepository.findById(id);
     if (!friendRequest) {
       throw new NotFoundException('Friend request not found');
     }
-    if (friendRequest.friend_id !== user_id) {
+    if (friendRequest.friendId !== userId) {
       throw new UnAuthorizedException('You are not authorized to perform this action');
     }
     if (friendRequest.status !== Status.PENDING) {
@@ -113,17 +113,17 @@ export default class FriendsService {
   }
 
   async block(
-    user_id: number | undefined,
+    userId: number | undefined,
     id: number,
   ): Promise<z.infer<typeof friendResponseSchema>> {
-    if (!user_id) {
+    if (!userId) {
       throw new NotFoundException('User not found');
     }
     const friendRequest = await this.friendRepository.findById(id);
     if (!friendRequest) {
       throw new NotFoundException('Friend request not found');
     }
-    if (friendRequest.user_id !== user_id) {
+    if (friendRequest.userId !== userId) {
       throw new UnAuthorizedException('You are not authorized to perform this action');
     }
     if (friendRequest.status !== Status.ACCEPTED) {
@@ -139,17 +139,17 @@ export default class FriendsService {
   }
 
   async unblock(
-    user_id: number | undefined,
+    userId: number | undefined,
     id: number,
   ): Promise<z.infer<typeof friendResponseSchema>> {
-    if (!user_id) {
+    if (!userId) {
       throw new NotFoundException('User not found');
     }
     const friendRequest = await this.friendRepository.findById(id);
     if (!friendRequest) {
       throw new NotFoundException('Friend request not found');
     }
-    if (friendRequest.user_id !== user_id) {
+    if (friendRequest.userId !== userId) {
       throw new UnAuthorizedException('You are not authorized to perform this action');
     }
     if (friendRequest.status !== Status.BLOCKED) {
@@ -164,12 +164,12 @@ export default class FriendsService {
     };
   }
 
-  // async getFriends(user_id: number | undefined): Promise<z.infer<typeof friendListResponseSchema>> {
-  //   if (!user_id) {
+  // async getFriends(userId: number | undefined): Promise<z.infer<typeof friendListResponseSchema>> {
+  //   if (!userId) {
   //     throw new NotFoundException('User not found');
   //   }
-  // const friends = await this.friendRepository.findByUserIdAndStatus(user_id, Status.ACCEPTED);
-  // const friendIds = friends.map((f) => f.friend_id);
+  // const friends = await this.friendRepository.findByUserIdAndStatus(userId, Status.ACCEPTED);
+  // const friendIds = friends.map((f) => f.friendId);
   // const friendProfiles = await this.userService.findManyByIds(friendIds);
 
   // return {

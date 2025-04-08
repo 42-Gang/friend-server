@@ -16,9 +16,9 @@ enum Status {
 
 model Friend {
   id                   Int      @id @default(autoincrement())
-  user_id              Int
-  friend_id            Int
+  userId              Int
+  friendId            Int
   status               Status     @default(PENDING)
 
-  @@unique([user_id, friend_id])
+  @@unique([userId, friendId])
 }

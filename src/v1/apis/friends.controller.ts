@@ -7,7 +7,7 @@ export default class FriendsController {
 
   request = async (request: FastifyRequest, reply: FastifyReply) => {
     const body = friendRequestSchema.parse(request.body);
-    const result = await this.friendsService.request(request.userId, body.friend_id);
+    const result = await this.friendsService.request(request.userId, body.friendId);
     reply.status(201).send(result);
   };
 
