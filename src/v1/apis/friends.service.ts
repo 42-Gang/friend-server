@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { TypeOf } from 'zod';
 
 import { STATUS } from '../common/constants/status.js';
 import {
@@ -16,7 +16,7 @@ export default class FriendsService {
   async request(
     userId: number | undefined,
     friendId: number,
-  ): Promise<z.infer<typeof friendResponseSchema>> {
+  ): Promise<TypeOf<typeof friendResponseSchema>> {
     if (!userId) {
       throw new NotFoundException('User not found');
     }
@@ -41,7 +41,7 @@ export default class FriendsService {
   async accept(
     userId: number | undefined,
     id: number,
-  ): Promise<z.infer<typeof friendResponseSchema>> {
+  ): Promise<TypeOf<typeof friendResponseSchema>> {
     if (!userId) {
       throw new NotFoundException('User not found');
     }
@@ -87,7 +87,7 @@ export default class FriendsService {
   async reject(
     userId: number | undefined,
     id: number,
-  ): Promise<z.infer<typeof friendResponseSchema>> {
+  ): Promise<TypeOf<typeof friendResponseSchema>> {
     if (!userId) {
       throw new NotFoundException('User not found');
     }
@@ -115,7 +115,7 @@ export default class FriendsService {
   async block(
     userId: number | undefined,
     id: number,
-  ): Promise<z.infer<typeof friendResponseSchema>> {
+  ): Promise<TypeOf<typeof friendResponseSchema>> {
     if (!userId) {
       throw new NotFoundException('User not found');
     }
@@ -141,7 +141,7 @@ export default class FriendsService {
   async unblock(
     userId: number | undefined,
     id: number,
-  ): Promise<z.infer<typeof friendResponseSchema>> {
+  ): Promise<TypeOf<typeof friendResponseSchema>> {
     if (!userId) {
       throw new NotFoundException('User not found');
     }
@@ -164,7 +164,7 @@ export default class FriendsService {
     };
   }
 
-  // async getFriends(userId: number | undefined): Promise<z.infer<typeof friendListResponseSchema>> {
+  // async getFriends(userId: number | undefined): Promise<TypeOf<typeof friendListResponseSchema>> {
   //   if (!userId) {
   //     throw new NotFoundException('User not found');
   //   }
